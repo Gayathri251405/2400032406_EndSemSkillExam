@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course List</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 20px; }
+      .course-list { list-style: none; padding: 0; }
+      .course-item { padding: 10px; margin: 5px 0; background: #f0f0f0; border: 1px solid #ccc; cursor: move; }
+      .course-item:hover { background: #e0e0e0; }
+      #current-order { margin-top: 20px; }
+    </style>
+  </head>
+  <body>
+    <h1>Course List</h1>
+    <p>Drag and drop to reorder the courses:</p>
+    <ul class="course-list" id="course-list">
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Introduction to React</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Advanced JavaScript</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Web Development Basics</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Data Structures and Algorithms</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Machine Learning Fundamentals</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Python Programming</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Database Design</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Cybersecurity Essentials</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Cloud Computing</li>
+      <li class="course-item" draggable="true"><input type="checkbox" class="course-checkbox"> Mobile App Development</li>
+    </ul>
+    <h2>Current Order:</h2>
+    <ol id="current-order"></ol>
+
+    <script>
+      const courseList = document.getElementById('course-list');
+      const currentOrder = document.getElementById('current-order');
+      let draggedElement = null;
+
+      function updateOrder() {
+        currentOrder.innerHTML = '';
+        Array.from(courseList.children).forEach((item, index) => {
+          const li = document.createElement('li');
+          li.textContent = item.textContent;
+          currentOrder.appendChild(li);
+        });
+      }
+
+      courseList.addEventListener('dragstart', (e) => {
+        draggedElement = e.target;
+        e.target.style.opacity = '0.5';
+      });
+
+      courseList.addEventListener('dragend', (e) => {
+        e.target.style.opacity = '1';
+        draggedElement = null;
+      });
+
+      courseList.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(courseList, e.clientY);
+        if (afterElement == null) {
+          courseList.appendChild(draggedElement);
+        } else {
+          courseList.insertBefore(draggedElement, afterElement);
+        }
+      });
+
+      courseList.addEventListener('drop', (e) => {
+        e.preventDefault();
+        updateOrder();
+      });
+
+      function getDragAfterElement(container, y) {
+        const draggableElements = [...container.querySelectorAll('.course-item:not(.dragging)')];
+
+        return draggableElements.reduce((closest, child) => {
+          const box = child.getBoundingClientRect();
+          const offset = y - box.top - box.height / 2;
+          if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child };
+          } else {
+            return closest;
+          }
+        }, { offset: Number.NEGATIVE_INFINITY }).element;
+      }
+
+      updateOrder();
+    </script>
+  </body>
+</html>
